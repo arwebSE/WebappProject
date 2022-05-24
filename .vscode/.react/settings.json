@@ -1,8 +1,0 @@
-{
-    "files.exclude": {
-        ".expo-shared": true,
-        ".expo": true,
-        "node_modules": true,
-        "yarn.lock": true
-    }
-}
