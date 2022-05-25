@@ -81,7 +81,7 @@ function BottomTabNavigator() {
                                 opacity: pressed ? 0.5 : 1,
                             })}
                         >
-                            <FontAwesome name="info-circle" size={25} color={Colors.text} style={{ marginRight: 15 }} />
+                            <Ionicons name="cog" size={25} color={Colors.text} style={{ marginRight: 15 }} />
                         </Pressable>
                     ),
                 })}
