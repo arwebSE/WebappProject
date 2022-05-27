@@ -101,3 +101,8 @@ web-build/
 
 # macOS
 .DS_Store
+
+
+config/
+
+.vscode/

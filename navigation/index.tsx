@@ -1,21 +1,19 @@
-/**
- * If you are not familiar with React Navigation, refer to the "Fundamentals" guide:
- * https://reactnavigation.org/docs/getting-started
- *
- */
-import { FontAwesome } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { NavigationContainer, DarkTheme, useIsFocused } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import * as React from "react";
 import { Pressable } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import Colors from "../constants/Colors";
-import ModalScreen from "../screens/ModalScreen";
+import authModel from "../models/auth";
+
+import Home from "../screens/Home";
+import Auth from "../screens/Auth";
+import SettingsModal from "../screens/SettingsModal";
 import NotFoundScreen from "../screens/NotFoundScreen";
-import TabOneScreen from "../screens/TabOneScreen";
-import TabTwoScreen from "../screens/TabTwoScreen";
+import Favorites from "../screens/Favorites";
 
 export default function Navigation() {
     return (
@@ -25,10 +23,6 @@ export default function Navigation() {
     );
 }
 
-/**
- * A root stack navigator is often used for displaying modals on top of all other content.
- * https://reactnavigation.org/docs/modal
- */
 const Stack = createNativeStackNavigator();
 
 function RootNavigator() {
@@ -37,16 +31,12 @@ function RootNavigator() {
             <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
             <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: "Oops!" }} />
             <Stack.Group screenOptions={{ presentation: "modal" }}>
-                <Stack.Screen name="Modal" component={ModalScreen} />
+                <Stack.Screen name="Modal" component={SettingsModal} />
             </Stack.Group>
         </Stack.Navigator>
     );
 }
 
-/**
- * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
- * https://reactnavigation.org/docs/bottom-tab-navigator
- */
 const BottomTab = createBottomTabNavigator();
 
 function BottomTabNavigator() {
@@ -58,6 +48,20 @@ function BottomTabNavigator() {
         Invoices: "cash",
         Shipping: "map",
     };
+    const [isLoggedIn, setIsLoggedIn] = useState<Boolean>(false);
+
+    const setLoggedIn = async () => {
+        setIsLoggedIn(await authModel.loggedIn());
+    };
+
+    useEffect(() => {
+        setLoggedIn();
+    }, []);
+
+    const isFocused = useIsFocused();
+    useEffect(() => {
+        isFocused && setLoggedIn();
+    }, [isFocused]);
 
     return (
         <BottomTab.Navigator
@@ -72,7 +76,7 @@ function BottomTabNavigator() {
         >
             <BottomTab.Screen
                 name="Home"
-                component={TabOneScreen}
+                component={Home}
                 options={({ navigation }) => ({
                     headerRight: () => (
                         <Pressable
@@ -86,14 +90,25 @@ function BottomTabNavigator() {
                     ),
                 })}
             />
-            <BottomTab.Screen
-                name="TabTwo"
-                component={TabTwoScreen}
-                options={{
-                    title: "Tab Two",
-                    tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-                }}
-            />
+            {isLoggedIn ? (
+                <BottomTab.Screen
+                    name="Favorites"
+                    component={Favorites}
+                    options={() => ({
+                        headerShown: false,
+                    })}
+                />
+            ) : (
+                <BottomTab.Screen
+                    name="Auth"
+                    options={() => ({
+                        headerShown: false,
+                        title: "Login",
+                    })}
+                >
+                    {() => <Auth setIsLoggedIn={setIsLoggedIn} />}
+                </BottomTab.Screen>
+            )}
         </BottomTab.Navigator>
     );
 }
