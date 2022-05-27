@@ -8,14 +8,16 @@ import authModel from "../models/auth";
 import Colors from "../constants/Colors";
 
 export default function SettingsModal() {
-    const [isLoggedIn, setIsLoggedIn] = useState<Boolean>(false);
     const navigation = useNavigation();
+    const [isLoggedIn, setIsLoggedIn] = useState<Boolean>(false);
+    const [userID, setUserID] = useState<string | null>(null);
 
     useEffect(() => {
-        const setLoggedIn = async () => {
+        const fetchLogin = async () => {
             setIsLoggedIn(await authModel.loggedIn());
+            setUserID(await authModel.getUserID());
         };
-        setLoggedIn();
+        fetchLogin();
     }, []);
 
     const logout = async () => {
@@ -32,11 +34,15 @@ export default function SettingsModal() {
     return (
         <SafeAreaView style={styles.container}>
             {isLoggedIn ? (
-                <View style={styles.logout}>
-                    <Pressable onPress={() => logout()} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
-                        <Text style={styles.header}>Logout</Text>
-                    </Pressable>
-                </View>
+                <>
+                    <Text style={styles.title}>Logged in as: {userID}</Text>
+
+                    <View style={styles.logout}>
+                        <Pressable onPress={() => logout()} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                            <Text style={styles.header}>Logout</Text>
+                        </Pressable>
+                    </View>
+                </>
             ) : (
                 <Text style={styles.title}>Login to access settings</Text>
             )}
@@ -97,5 +103,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 15,
         textAlign: "center",
+        marginTop: 20,
     },
 });

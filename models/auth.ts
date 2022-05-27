@@ -25,7 +25,7 @@ const auth = {
             },
         });
         console.log("response", response);
-        
+
         const result = await response.json();
         if (Object.prototype.hasOwnProperty.call(result, "errors")) {
             return {
@@ -35,40 +35,27 @@ const auth = {
             };
         }
         await storage.storeToken(result.data.token);
+        await storage.storeEmail(email);
         return {
             title: "Login",
             message: result.data.message,
             type: "success",
         };
     },
-    getUserID: async function getUserID(email: string,) {
-        const data = {
-            api_key: config.apiKey,
-        };
-        const response = await fetch(`${config.authUrl}/users`, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "content-type": "application/json",
-            },
-        });
+    getUserID: async function getUserID() {
+        const response = await fetch(`${config.authUrl}/users?api_key=${config.apiKey}`);
         const result = await response.json();
+
         if (Object.prototype.hasOwnProperty.call(result, "errors")) {
-            return {
-                title: result.errors.title,
-                message: result.errors.detail,
-                type: "danger",
-            };
+            console.log("Error getting userID!");
+            return;
         }
-        console.log("users:", result.data);
-        console.log("filtered", result.data.filter((usr) => usr.email === email));
-        
-        
-        return {
-            title: "Login",
-            message: result.data.message,
-            type: "success",
-        };
+        const storedEmail = await storage.readEmail();
+        const userObject = result.data.filter((usr) => usr.email === storedEmail);
+        const userID = userObject[0].user_id;
+        if (userID) {
+            return userID;
+        } else return;
     },
     register: async function register(email: string, password: string) {
         const data = {
@@ -100,11 +87,12 @@ const auth = {
     },
     logout: async function logout() {
         await storage.deleteToken();
+        await storage.deleteEmail();
     },
     saveData: async function saveData(artefact: string) {
         const data = {
             api_key: config.apiKey,
-            artefact
+            artefact,
         };
         const response = await fetch(`${config.authUrl}/data`, {
             method: "POST",
@@ -130,7 +118,7 @@ const auth = {
     deleteData: async function deleteData(id: number) {
         const data = {
             api_key: config.apiKey,
-            id
+            id,
         };
         const response = await fetch(`${config.authUrl}/data`, {
             method: "DELETE",
@@ -152,7 +140,6 @@ const auth = {
                 type: "danger",
             };
         }
-        
     },
 };
 

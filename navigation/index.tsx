@@ -47,6 +47,7 @@ function BottomTabNavigator() {
         Auth: "enter",
         Invoices: "cash",
         Shipping: "map",
+        Favorites: "star"
     };
     const [isLoggedIn, setIsLoggedIn] = useState<Boolean>(false);
 
@@ -95,7 +96,7 @@ function BottomTabNavigator() {
                     name="Favorites"
                     component={Favorites}
                     options={() => ({
-                        headerShown: false,
+                        // headerShown: false,
                     })}
                 />
             ) : (

@@ -25,6 +25,27 @@ const storage = {
     },
     deleteToken: async function deleteToken() {
         await AsyncStorage.removeItem('@token');
+    },
+    storeEmail: async function storeEmail(email: string) {
+        try {
+            const jsonValue = JSON.stringify(email);
+            await AsyncStorage.setItem('@email', jsonValue);
+            console.log("Stored email", email);
+        } catch (e) {
+            console.log("Email save error:", e);
+        }
+    },
+    readEmail: async function readEmail(): Promise<any> {
+        try {
+            const jsonValue = await AsyncStorage.getItem('@email');
+            console.log("Read stored email", jsonValue);
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+        } catch (e) {
+            console.log("Email read error:", e);
+        }
+    },
+    deleteEmail: async function deleteEmail() {
+        await AsyncStorage.removeItem('@email');
     }
 };
 
