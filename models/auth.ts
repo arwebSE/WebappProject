@@ -141,6 +141,18 @@ const auth = {
             };
         }
     },
+    getData: async function getData() {
+        const storedToken = await storage.readToken();
+        const response = await fetch(`${config.authUrl}/data?api_key=${config.apiKey}`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                "x-access-token": storedToken.token,
+            },
+        });
+        const result = await response.json();
+        console.log("got data", result);
+    },
 };
 
 export default auth;

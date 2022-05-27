@@ -3,7 +3,6 @@ import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 
-import config from "../config/config.json";
 import authModel from "../models/auth";
 import Colors from "../constants/Colors";
 
@@ -16,6 +15,7 @@ export default function SettingsModal() {
         const fetchLogin = async () => {
             setIsLoggedIn(await authModel.loggedIn());
             setUserID(await authModel.getUserID());
+            await authModel.getData()
         };
         fetchLogin();
     }, []);
