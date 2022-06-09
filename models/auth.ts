@@ -51,7 +51,7 @@ const auth = {
             return;
         }
         const storedEmail = await storage.readEmail();
-        const userObject = result.data.filter((usr) => usr.email === storedEmail);
+        const userObject = result.data.filter((usr: { email: string }) => usr.email === storedEmail);
         const userID = userObject[0].user_id;
         if (userID) {
             return userID;
@@ -88,6 +88,18 @@ const auth = {
     logout: async function logout() {
         await storage.deleteToken();
         await storage.deleteEmail();
+    },
+    getData: async function getData() {
+        const storedToken = await storage.readToken();
+        const response = await fetch(`${config.authUrl}/data?api_key=${config.apiKey}`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                "x-access-token": storedToken.token,
+            },
+        });
+        const result = await response.json();
+        return result.data;
     },
     saveData: async function saveData(artefact: string) {
         const data = {
@@ -140,18 +152,6 @@ const auth = {
                 type: "danger",
             };
         }
-    },
-    getData: async function getData() {
-        const storedToken = await storage.readToken();
-        const response = await fetch(`${config.authUrl}/data?api_key=${config.apiKey}`, {
-            method: "GET",
-            headers: {
-                "content-type": "application/json",
-                "x-access-token": storedToken.token,
-            },
-        });
-        const result = await response.json();
-        console.log("got data", result);
     },
 };
 

@@ -15,7 +15,6 @@ export default function SettingsModal() {
         const fetchLogin = async () => {
             setIsLoggedIn(await authModel.loggedIn());
             setUserID(await authModel.getUserID());
-            await authModel.getData()
         };
         fetchLogin();
     }, []);
