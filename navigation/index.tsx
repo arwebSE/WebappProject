@@ -14,6 +14,7 @@ import Auth from "../screens/Auth";
 import SettingsModal from "../screens/SettingsModal";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Favorites from "../screens/Favorites";
+import Map from "../screens/Map";
 
 export default function Navigation() {
     return (
@@ -42,12 +43,9 @@ const BottomTab = createBottomTabNavigator();
 function BottomTabNavigator() {
     const routeIcons = {
         Home: "home",
-        Orders: "clipboard",
-        Deliveries: "file-tray-stacked",
         Auth: "enter",
-        Invoices: "cash",
-        Shipping: "map",
-        Favorites: "star"
+        Favorites: "star",
+        Map: "map",
     };
     const [isLoggedIn, setIsLoggedIn] = useState<Boolean>(false);
 
@@ -89,6 +87,13 @@ function BottomTabNavigator() {
                             <Ionicons name="cog" size={25} color={Colors.text} style={{ marginRight: 15 }} />
                         </Pressable>
                     ),
+                })}
+            />
+            <BottomTab.Screen
+                name="Map"
+                component={Map}
+                options={() => ({
+                    // headerShown: false,
                 })}
             />
             {isLoggedIn ? (

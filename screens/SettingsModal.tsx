@@ -13,8 +13,9 @@ export default function SettingsModal() {
 
     useEffect(() => {
         const fetchLogin = async () => {
-            setIsLoggedIn(await authModel.loggedIn());
-            setUserID(await authModel.getUserID());
+            const loggedIn = await authModel.loggedIn();
+            setIsLoggedIn(loggedIn);
+            if (loggedIn) setUserID(await authModel.getUserID());
         };
         fetchLogin();
     }, []);
