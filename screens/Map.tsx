@@ -56,7 +56,7 @@ export default function Home() {
         );
     return (
         <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Skicka order</Text>
+            <Text style={styles.title}>Delay Map</Text>
             <View style={styles.container}>
                 <MapView
                     style={styles.map}
@@ -66,15 +66,12 @@ export default function Home() {
                         longitudeDelta: 0.2,
                     }}
                 >
-                    <>
-                        {myMarker}
-                        <Circle
-                            center={myLocation?.coords}
-                            radius={100}
-                            color="rgba(158, 158, 255, 1.0)"
-                            fillColor="rgba(158, 158, 255, 0.3)"
-                        />
-                    </>
+                    {/* {myMarker} */}
+                    <Circle
+                        center={myLocation?.coords}
+                        radius={100}
+                        fillColor="rgba(158, 158, 255, 0.5)"
+                    />
                 </MapView>
             </View>
         </View>

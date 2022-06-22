@@ -1,5 +1,5 @@
 {
-    "name": "WebappProject",
+    "name": "webapp_project",
     "version": "1.0.0",
     "main": "node_modules/expo/AppEntry.js",
     "scripts": {
@@ -50,5 +50,8 @@
         "react-test-renderer": "17.0.2",
         "typescript": "~4.3.5"
     },
-    "private": true
+    "private": true,
+    "resolutions": {
+        "@types/react": "17.0.21"
+    }
 }

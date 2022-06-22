@@ -43,7 +43,7 @@ interface Auth {
 }
 
 export type DelayedStation = {
-    AdvertisedLocation: string;
+    AdvertisedLocationName: string;
     FromLocation: { LocationName: string };
     AdvertisedTimeAtLocation: string;
     EstimatedTimeAtLocation: string;

@@ -47,7 +47,7 @@ export default function Home() {
             return element !== undefined;
         });
 
-        //console.log("first stationdelay", fixedArray[0]);
+        //console.log("first stationDelay", fixedArray[0]);
 
         setStations(fixedArray);
         setLoading(false);
@@ -93,12 +93,12 @@ export default function Home() {
                             </View>
                         </DataTable.Header>
 
-                        {stations.map((station, index) => {
+                        {stations.map((station: DelayedStation, index: React.Key | null | undefined) => {
                             const oldTime = new Date(station.AdvertisedTimeAtLocation);
                             const newTime = new Date(station.EstimatedTimeAtLocation);
 
                             return (
-                                <View style={styles.row} key={index}>
+                                <View key={index}>
                                     <DataTable.Row style={styles.dataRow}>
                                         <DataTable.Cell style={{ flex: 2 }}>
                                             {station.AdvertisedLocationName}

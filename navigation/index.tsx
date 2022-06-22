@@ -41,7 +41,7 @@ function RootNavigator() {
 const BottomTab = createBottomTabNavigator();
 
 function BottomTabNavigator() {
-    const routeIcons = {
+    const routeIcons: any = {
         Home: "home",
         Auth: "enter",
         Favorites: "star",
@@ -68,7 +68,7 @@ function BottomTabNavigator() {
             screenOptions={({ route }) => ({
                 tabBarActiveTintColor: Colors.tint,
                 tabBarIcon: ({ color, size }) => {
-                    let iconName = routeIcons[route.name] || "alert";
+                    const iconName = routeIcons[route.name] || "alert";
                     return <Ionicons name={iconName} size={size} color={color} style={{ marginBottom: -3 }} />;
                 },
             })}
