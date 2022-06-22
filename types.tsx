@@ -41,3 +41,12 @@ interface Auth {
     email: string;
     password: string;
 }
+
+export type DelayedStation = {
+    AdvertisedLocation: string;
+    FromLocation: { LocationName: string };
+    AdvertisedTimeAtLocation: string;
+    EstimatedTimeAtLocation: string;
+    AdvertisedTrainIdent: string;
+    ToLocation: { LocationName: string };
+};

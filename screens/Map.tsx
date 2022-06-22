@@ -38,13 +38,13 @@ export default function Home() {
     };
 
     useEffect(() => {
-        const initialize = async () => {
+        const init = async () => {
             setLoading(true);
             setLoadingMsg("Getting your location...");
             await getMyLocation();
             setLoading(false);
         };
-        initialize();
+        init();
     }, []);
 
     if (loading)
@@ -61,19 +61,20 @@ export default function Home() {
                 <MapView
                     style={styles.map}
                     initialRegion={{
-                        ...initCoords?.coords,
+                        ...myLocation?.coords,
                         latitudeDelta: 0.2,
                         longitudeDelta: 0.2,
                     }}
                 >
-                    {destMarker}
-                    {initMarker}
-                    <Circle
-                        center={initCoords?.coords}
-                        radius={100}
-                        color="rgba(158, 158, 255, 1.0)"
-                        fillColor="rgba(158, 158, 255, 0.3)"
-                    />
+                    <>
+                        {myMarker}
+                        <Circle
+                            center={myLocation?.coords}
+                            radius={100}
+                            color="rgba(158, 158, 255, 1.0)"
+                            fillColor="rgba(158, 158, 255, 0.3)"
+                        />
+                    </>
                 </MapView>
             </View>
         </View>

@@ -16,7 +16,7 @@ const traffic = {
         const result = await response.json();
         return result.data;
     },
-    getDelayed: async function getDelayed() {
+    getDelays: async function getDelays() {
         const response = await fetch(`${config.baseUrl}/delayed`);
         const result = await response.json();
         return result.data;
