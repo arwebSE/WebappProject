@@ -2,16 +2,18 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 
-import trafficModel from "../models/traffic";
-import { DelayedStation } from "../types";
+import { DelayedStation, Station, LocationObject } from "../types";
+import getDelays from "../utils/delays";
 
 export default function Home() {
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingMsg, setLoadingMsg] = useState<string>("");
-    const [myLocation, setMyLocation] = useState({ coords: { latitude: 56.1612, longitude: 15.5869, accuracy: 1 } });
+    const [myLocation, setMyLocation] = useState<LocationObject | {}>({
+        coords: { latitude: 56.1612, longitude: 15.5869, accuracy: 1 },
+    });
     const [myMarker, setMyMarker] = useState<Marker | {}>({});
     const [stationCoords, setStationCoords] = useState<DelayedStation | []>([]);
 
@@ -27,8 +29,9 @@ export default function Home() {
             return;
         }
         const gpsLocation = await Location.getCurrentPositionAsync({});
-        setMyLocation(gpsLocation);
-        console.log("Got gps location with accuracy", gpsLocation.coords.accuracy);
+        if (gpsLocation) setMyLocation(gpsLocation);
+
+        console.log(`GPS accuracy: ${gpsLocation.coords.accuracy}.`);
         setMyMarker(
             <Marker
                 coordinate={{
@@ -41,60 +44,33 @@ export default function Home() {
         );
     };
 
-    const fetchStations = async () => {
-        const response = await trafficModel.getStations();
-        return response;
-    };
-
-    const fetchDelays = async () => {
-        const response = await trafficModel.getDelays();
-        return response;
-    };
-
     const setupStations = async () => {
-        const stations = await fetchStations();
-        const delays = await fetchDelays();
-
-        const delaysHasLocation = delays.filter((element: any) => {
-            return element.FromLocation !== undefined;
-        });
-
-        const stationDelays = stations.map((station: { LocationSignature: string }) => {
-            const delay = delaysHasLocation.find((delay: { FromLocation: { LocationName: string }[] }) => {
-                if (delay.FromLocation[0].LocationName === station.LocationSignature) {
-                    return delay;
-                }
-            });
-
-            if (delay) {
-                const delayStation = { ...delay, ...station };
-                return delayStation;
-            }
-        });
-
-        const fixedArray = stationDelays.filter((element: any) => {
-            return element !== undefined;
-        });
-        setStationCoords(fixedArray);
+        const res = await getDelays();
+        setStationCoords(res);
     };
 
+    const refreshMap = async () => {
+        setLoading(true);
+        setLoadingMsg("Getting your location...");
+        console.log("Getting device location...");
+        await getMyLocation();
+        setLoadingMsg("Loading markers...");
+        console.log("Loading stations...");
+        await setupStations();
+        console.log(stationCoords.length, "stations loaded.");
+        setLoading(false);
+    };
+
+    const isFocused = useIsFocused();
     useEffect(() => {
-        const init = async () => {
-            setLoading(true);
-            setLoadingMsg("Getting your location...");
-            await getMyLocation();
-            setLoadingMsg("Loading markers...");
-            await setupStations();
-            setLoading(false);
-        };
-        init();
-    }, []);
+        isFocused && refreshMap();
+    }, [isFocused]);
 
     if (loading)
         return (
             <View style={{ flex: 1, justifyContent: "center" }}>
                 <ActivityIndicator size={"large"} color={"white"} />
-                <Text style={styles.title}>{loadingMsg}</Text>
+                <Text style={styles.text}>{loadingMsg}</Text>
             </View>
         );
     return (
@@ -105,22 +81,33 @@ export default function Home() {
                     style={styles.map}
                     initialRegion={{
                         ...myLocation?.coords,
-                        latitudeDelta: 0.2,
-                        longitudeDelta: 0.2,
+                        latitudeDelta: 3,
+                        longitudeDelta: 3,
                     }}
                 >
-                    {stationCoords.map((obj: DelayedStation, index: React.Key | null | undefined) => {
-                        const jsonCoords = obj.Geometry.WGS84;
-                        const coords = obj.Geometry.WGS84.substring(7, jsonCoords.length - 1).split(" ");
+                    {stationCoords.map((delay: DelayedStation, index: React.Key | null | undefined) => {
+                        const jsonCoords = delay.fromStation.Geometry.WGS84;
+                        const coords = delay.fromStation.Geometry.WGS84.substring(7, jsonCoords.length - 1).split(" ");
                         const latitude = parseFloat(coords[1]);
                         const longitude = parseFloat(coords[0]);
+                        const oldTime = new Date(delay.AdvertisedTimeAtLocation);
+                        const newTime = new Date(delay.EstimatedTimeAtLocation);
+                        const oldTimeString = oldTime.toLocaleTimeString("sv-SE", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                        const newTimeString = newTime.toLocaleTimeString("sv-SE", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                        const isCancelled = delay.Canceled ? "(😢CANCELLED)" : "";
 
                         return (
                             <Marker
                                 key={index}
                                 coordinate={{ latitude, longitude }}
-                                title={obj.AdvertisedLocationName}
-                                description={obj.AdvertisedTrainIdent}
+                                title={`${delay.fromStation.AdvertisedLocationName} to ${delay.toStation.AdvertisedLocationName}. ${isCancelled}`}
+                                description={`Train ${delay.AdvertisedTrainIdent}. ETA was ${oldTimeString}, new ETA is ${newTimeString}.`}
                             />
                         );
                     })}
@@ -139,6 +126,12 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
     },
     title: {
+        fontSize: 48,
+        fontWeight: "bold",
+        color: "white",
+        padding: 10,
+    },
+    text: {
         fontSize: 20,
         fontWeight: "bold",
         color: "white",

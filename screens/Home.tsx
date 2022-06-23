@@ -3,53 +3,18 @@ import { useNavigation } from "@react-navigation/native";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { DefaultTheme, DataTable, Provider as PaperProvider } from "react-native-paper";
 
-import trafficModel from "../models/traffic";
-import { DelayedStation } from "../types";
+import { DelayedStation, Station } from "../types";
+import getDelays from "../utils/delays";
 
 export default function Home() {
     const navigation = useNavigation();
     const [loading, setLoading] = useState<boolean>(false);
-    const [stations, setStations] = useState<DelayedStation | []>([]);
-
-    const fetchStations = async () => {
-        const response = await trafficModel.getStations();
-        return response;
-    };
-
-    const fetchDelays = async () => {
-        const response = await trafficModel.getDelays();
-        return response;
-    };
+    const [delays, setDelays] = useState<DelayedStation | []>([]);
 
     const initSetup = async () => {
         setLoading(true);
-        const stations = await fetchStations();
-        const delays = await fetchDelays();
-
-        const delaysHasLocation = delays.filter((element: any) => {
-            return element.FromLocation !== undefined;
-        });
-
-        const stationDelays = stations.map((station: { LocationSignature: string }) => {
-            const delay = delaysHasLocation.find((delay: { FromLocation: { LocationName: string }[] }) => {
-                if (delay.FromLocation[0].LocationName === station.LocationSignature) {
-                    return delay;
-                }
-            });
-
-            if (delay) {
-                const delayStation = { ...delay, ...station };
-                return delayStation;
-            }
-        });
-
-        const fixedArray = stationDelays.filter((element: any) => {
-            return element !== undefined;
-        });
-
-        //console.log("first stationDelay", fixedArray[0]);
-
-        setStations(fixedArray);
+        const res = await getDelays();
+        setDelays(res);
         setLoading(false);
     };
 
@@ -70,7 +35,7 @@ export default function Home() {
     };
 
     if (loading) {
-        <ActivityIndicator />;
+        <ActivityIndicator color={"white"} />;
     }
     return (
         <View style={styles.container}>
@@ -93,13 +58,13 @@ export default function Home() {
                             </View>
                         </DataTable.Header>
 
-                        {stations.map((station: DelayedStation, index: React.Key | null | undefined) => {
-                            const oldTime = new Date(station.AdvertisedTimeAtLocation);
-                            const newTime = new Date(station.EstimatedTimeAtLocation);
+                        {delays.map((delay: DelayedStation, index: React.Key | null | undefined) => {
+                            const oldTime = new Date(delay.AdvertisedTimeAtLocation);
+                            const newTime = new Date(delay.EstimatedTimeAtLocation);
 
                             return (
                                 <Pressable key={index} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
-                                    {station.Canceled ? (
+                                    {delay.Canceled ? (
                                         <View
                                             style={{
                                                 borderBottomColor: "red",
@@ -111,10 +76,10 @@ export default function Home() {
                                     ) : null}
                                     <DataTable.Row style={styles.dataRow}>
                                         <DataTable.Cell style={{ flex: 2 }}>
-                                            {station.AdvertisedLocationName}
+                                            {delay.fromStation.AdvertisedLocationName}
                                         </DataTable.Cell>
                                         <DataTable.Cell>
-                                            <Text style={{ fontSize: 17 }}>{station.AdvertisedTrainIdent}</Text>
+                                            <Text style={{ fontSize: 17 }}>{delay.AdvertisedTrainIdent}</Text>
                                         </DataTable.Cell>
 
                                         <View style={{ flexDirection: "row", flexBasis: "30%" }}>

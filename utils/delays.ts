@@ -1,0 +1,44 @@
+import trafficModel from "../models/traffic";
+import { DelayedStation, Station } from "../types";
+
+const fetchStations = async () => {
+    const response = await trafficModel.getStations();
+    return response;
+};
+
+const fetchDelays = async () => {
+    const response = await trafficModel.getDelays();
+    return response;
+};
+
+const connectDatasets = async () => {
+    const stations = await fetchStations();
+    const delays = await fetchDelays();
+
+    const delaysHasLocation = delays.filter((element: any) => {
+        return element.FromLocation !== undefined;
+    });
+
+    const stationDelays = stations.map((fromStation: Station) => {
+        const delay = delaysHasLocation.find((delay: DelayedStation) => {
+            if (delay.FromLocation[0].LocationName === fromStation.LocationSignature) {
+                return delay;
+            }
+        });
+
+        if (delay) {
+            const toStation = stations.find(
+                (station: Station) => station.LocationSignature === delay.ToLocation[0].LocationName
+            );
+            const delayStation = { ...delay, fromStation, toStation };
+            return delayStation;
+        }
+    });
+
+    const fixedArray = stationDelays.filter((element: any) => {
+        return element !== undefined;
+    });
+    return fixedArray;
+};
+
+export default connectDatasets;

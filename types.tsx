@@ -42,13 +42,43 @@ interface Auth {
     password: string;
 }
 
-export type DelayedStation = {
+export type Location = {
+    LocationName: string;
+    Priority: number;
+    Order: number;
+};
+
+export type LocationObject = {
+    coords: {
+        accuracy: number;
+        altitude: number;
+        altitudeAccuracy: number;
+        heading: number;
+        latitude: number;
+        longitude: number;
+        speed: number;
+    };
+    timestamp: number;
+};
+
+export type Station = {
     AdvertisedLocationName: string;
-    FromLocation: { LocationName: string };
-    AdvertisedTimeAtLocation: string;
-    EstimatedTimeAtLocation: string;
-    AdvertisedTrainIdent: string;
-    ToLocation: { LocationName: string };
-    Canceled: boolean;
     Geometry: { WGS84: string };
+    LocationSignature: string;
+    PlatformLine: [string];
+};
+
+export type DelayedStation = {
+    ActivityId: string;
+    ActivityType: string;
+    AdvertisedTimeAtLocation: string;
+    AdvertisedTrainIdent: string;
+    Canceled: boolean;
+    EstimatedTimeAtLocation: string;
+    FromLocation: [Location];
+    ToLocation: [Location];
+    fromStation: Station;
+    toStation: Station;
+    length: number;
+    map: Function;
 };
