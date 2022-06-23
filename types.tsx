@@ -49,4 +49,5 @@ export type DelayedStation = {
     EstimatedTimeAtLocation: string;
     AdvertisedTrainIdent: string;
     ToLocation: { LocationName: string };
+    Canceled: boolean;
 };

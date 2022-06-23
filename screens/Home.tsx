@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { DefaultTheme, DataTable, Provider as PaperProvider } from "react-native-paper";
 
 import trafficModel from "../models/traffic";
@@ -98,7 +98,17 @@ export default function Home() {
                             const newTime = new Date(station.EstimatedTimeAtLocation);
 
                             return (
-                                <View key={index}>
+                                <Pressable key={index} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                                    {station.Canceled ? (
+                                        <View
+                                            style={{
+                                                borderBottomColor: "red",
+                                                borderBottomWidth: 2,
+                                                top: -25,
+                                                marginHorizontal: 10,
+                                            }}
+                                        />
+                                    ) : null}
                                     <DataTable.Row style={styles.dataRow}>
                                         <DataTable.Cell style={{ flex: 2 }}>
                                             {station.AdvertisedLocationName}
@@ -126,7 +136,7 @@ export default function Home() {
                                             </DataTable.Cell>
                                         </View>
                                     </DataTable.Row>
-                                </View>
+                                </Pressable>
                             );
                         })}
                     </DataTable>
