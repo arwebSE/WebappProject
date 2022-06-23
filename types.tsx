@@ -50,4 +50,5 @@ export type DelayedStation = {
     AdvertisedTrainIdent: string;
     ToLocation: { LocationName: string };
     Canceled: boolean;
+    Geometry: { WGS84: string };
 };
