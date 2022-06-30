@@ -9,12 +9,13 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Colors from "../constants/Colors";
 import authModel from "../models/auth";
 
-import Home from "../screens/Home";
+import Delays from "../screens/Delays";
 import Auth from "../screens/Auth";
 import SettingsModal from "../screens/SettingsModal";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Favorites from "../screens/Favorites";
 import Map from "../screens/Map";
+import DelayDetails from "../screens/DelayDetails";
 
 export default function Navigation() {
     return (
@@ -34,6 +35,7 @@ function RootNavigator() {
             <Stack.Group screenOptions={{ presentation: "modal" }}>
                 <Stack.Screen name="Modal" component={SettingsModal} />
             </Stack.Group>
+            <Stack.Screen name="DelayDetails" component={DelayDetails} />
         </Stack.Navigator>
     );
 }
@@ -46,6 +48,7 @@ function BottomTabNavigator() {
         Auth: "enter",
         Favorites: "star",
         Map: "map",
+        Delays: "time",
     };
     const [isLoggedIn, setIsLoggedIn] = useState<Boolean>(false);
 
@@ -74,8 +77,8 @@ function BottomTabNavigator() {
             })}
         >
             <BottomTab.Screen
-                name="Home"
-                component={Home}
+                name="Delays"
+                component={Delays}
                 options={({ navigation }) => ({
                     headerRight: () => (
                         <Pressable

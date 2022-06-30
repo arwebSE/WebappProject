@@ -8,7 +8,8 @@ import { showMessage } from "react-native-flash-message";
 import { DelayedStation, Station } from "../types";
 import getDelays from "../utils/delays";
 
-export default function Home() {
+export default function Map() {
+    const navigation = useNavigation();
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingMsg, setLoadingMsg] = useState<string>("");
     const [markers, setMarkers] = useState<[Marker] | []>([]);
@@ -98,6 +99,8 @@ export default function Home() {
                     coordinate={{ latitude, longitude }}
                     title={`${delay.fromStation.AdvertisedLocationName} to ${delay.toStation.AdvertisedLocationName}. ${isCancelled}`}
                     description={`Train ${delay.AdvertisedTrainIdent}. ETA was ${oldTimeString}, new ETA is ${newTimeString}.`}
+                    image={require("../assets/images/dangerSign.png")}
+                    onCalloutPress={() => { showDetails(delay) }}
                 />
             );
         });
@@ -116,6 +119,11 @@ export default function Home() {
         isFocused && refreshMap();
     }, [isFocused]);
 
+    const showDetails = (delay: DelayedStation) => {
+        console.log("Navigating to activity:", delay.ActivityId);
+        navigation.navigate("DelayDetails", { delay });
+    };
+
     if (loading)
         return (
             <View style={{ flex: 1, justifyContent: "center" }}>
@@ -125,7 +133,7 @@ export default function Home() {
         );
     return (
         <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Delay Map</Text>
+            <Text style={styles.title}>Map</Text>
             <View style={styles.container}>
                 <MapView
                     style={styles.map}

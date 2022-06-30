@@ -11,7 +11,7 @@ const fetchDelays = async () => {
     return response;
 };
 
-const connectDatasets = async () => {
+const getDelays = async () => {
     const stations = await fetchStations();
     const delays = await fetchDelays();
 
@@ -41,4 +41,27 @@ const connectDatasets = async () => {
     return fixedArray;
 };
 
-export default connectDatasets;
+// get message if match from and to station
+const findMessages = async (fromStation: string) => {
+    const messages = await trafficModel.getMessages();
+
+    //console.log("Checking messages for", fromStation);
+
+    const msgArray = [];
+    messages.map((message: any) => {
+        if (message.TrafficImpact) {
+            message.TrafficImpact.map((impact: any) => {
+                if (impact.FromLocation[0] === fromStation) {
+                    //console.log("Found message", message.Header);
+
+                    msgArray.push(message);
+                }
+            });
+        }
+    });
+    if (msgArray.length > 0) {
+        return msgArray;
+    } else return ["empty"];
+};
+
+export { getDelays, findMessages };

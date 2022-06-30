@@ -18,7 +18,7 @@ const storage = {
         try {
             const jsonValue = await AsyncStorage.getItem("@token");
             if (jsonValue) {
-                console.log("Got stored token! Parsing...");
+                //console.log("Got stored token! Parsing...");
                 const token = JSON.parse(jsonValue);
                 return token;
             } else {
