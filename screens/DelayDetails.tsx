@@ -16,8 +16,10 @@ export default function DelayDetails({ route }: { route: RouteProp<{ delay: Dela
     const fetchMessages = async () => {
         if (messages[0] === "empty") {
             console.log("No messages found.");
+            return;
         } else if (messages.length > 1) {
             console.log("Messages fetched!");
+            return;
         } else {
             console.log("Fetching messages...");
             const res = await findMessages(delay.fromStation.LocationSignature);

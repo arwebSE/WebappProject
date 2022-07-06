@@ -6,7 +6,7 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 
 import { DelayedStation, Station } from "../types";
-import getDelays from "../utils/delays";
+import { getDelays } from "../utils/delays";
 
 export default function Map() {
     const navigation = useNavigation();
