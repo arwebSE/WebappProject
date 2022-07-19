@@ -133,7 +133,6 @@ export default function Map() {
         );
     return (
         <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Map</Text>
             <View style={styles.container}>
                 <MapView
                     style={styles.map}

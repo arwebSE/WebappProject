@@ -35,7 +35,7 @@ function RootNavigator() {
             <Stack.Group screenOptions={{ presentation: "modal" }}>
                 <Stack.Screen name="Modal" component={SettingsModal} />
             </Stack.Group>
-            <Stack.Screen name="DelayDetails" component={DelayDetails} />
+            <Stack.Screen name="DelayDetails" component={DelayDetails} options={() => ({ title: "Details" })} />
         </Stack.Navigator>
     );
 }
@@ -96,7 +96,7 @@ function BottomTabNavigator() {
                 name="Map"
                 component={Map}
                 options={() => ({
-                    // headerShown: false,
+                    headerShown: false,
                 })}
             />
             {isLoggedIn ? (

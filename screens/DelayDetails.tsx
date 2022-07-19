@@ -77,7 +77,7 @@ export default function DelayDetails({ route }: { route: RouteProp<{ delay: Dela
                     {messages.length > 1 ? (
                         <View style={styles.faults}>
                             <Text style={{ ...styles.subtitle, marginBottom: 5 }}>Faults affecting this station:</Text>
-                            <ScrollView style={{backgroundColor: "green"}}>
+                            <ScrollView style={styles.faultsScroll}>
                                 {messages.map((msg, index) => (
                                     <View key={index} style={styles.msgContainer}>
                                         <Text style={styles.msgHeader}>{msg.Header}</Text>
@@ -146,12 +146,12 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderWidth: 1,
         borderColor: "gray",
-        padding: 7
+        padding: 7,
     },
     msgHeader: {
         color: "lightblue",
         fontSize: 17,
-        marginBottom: 5
+        marginBottom: 5,
     },
     msgText: {
         color: "white",
@@ -159,6 +159,8 @@ const styles = StyleSheet.create({
     },
     faults: {
         marginVertical: 20,
-        backgroundColor: "blue"
+    },
+    faultsScroll: {
+        maxHeight: 570,
     },
 });
