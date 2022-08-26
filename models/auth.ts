@@ -135,6 +135,7 @@ const auth = {
             api_key: config.apiKey,
             id,
         };
+        console.log("DELETE", data);
         const response = await fetch(`${config.authUrl}/data`, {
             method: "DELETE",
             body: JSON.stringify(data),

@@ -1,68 +1,157 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StackActions, useIsFocused, useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
+import { Ionicons } from "@expo/vector-icons";
 
 import authModel from "../models/auth";
+import { DelayedStation } from "../types";
+import { getDelays } from "../utils/delays";
 
 export default function Favorites() {
     const navigation = useNavigation();
     const [loading, setLoading] = useState<boolean>(false);
-    const [userData, setUserData] = useState<[{ id: number; email: string; artefact: string }] | []>([]);
+    const [delays, setDelays] = useState<DelayedStation | []>([]);
 
-    const fetchData = async () => {
+    const initSetup = async () => {
         setLoading(true);
-        const data = await authModel.getData();
-        setUserData(data);
-        setLoading(false);
-        //console.log("got data", data);
-    };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+        const userData = await authModel.getData();
+        const allDelays = await getDelays();
 
-    const handleDelete = async (index: number) => {
-        console.log("Deleting ", index);
-        const result = await authModel.deleteData(index);
-        showMessage({
-            message: result.title,
-            description: result.message,
-            type: result.type,
+        let filteredDelays: [DelayedStation] | [] = [];
+        allDelays.map((delay: DelayedStation) => {
+            userData.filter((row: { artefact: string }) => {
+                const data = row.artefact.replaceAll("'", "");
+                const jsonData = JSON.parse(data);
+
+                if (jsonData.station === delay.fromStation.LocationSignature) {
+                    filteredDelays.push(delay); // save matching delaystation to array
+                }
+            });
         });
 
-        fetchData();
+        console.log(
+            "filteredDelays:",
+            filteredDelays.map((delay) => delay.ActivityId)
+        );
+        setDelays(filteredDelays);
+
+        setLoading(false);
     };
 
-    //return a row for each item in the array
+    const isFocused = useIsFocused();
+    useEffect(() => {
+        isFocused && initSetup();
+    }, [isFocused]);
+
+    const showDetails = (delay: DelayedStation) => {
+        console.log("Navigating to activity:", delay.ActivityId);
+        navigation.navigate("DelayDetails", { delay });
+    };
+
+    if (loading) {
+        <ActivityIndicator color={"white"} />;
+    }
     return (
         <View style={styles.container}>
-            <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchData} />}>
-                <View>
-                    <Text style={styles.title}>Favorites</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.text}>ID</Text>
-                        <Text style={styles.text}>Name</Text>
-                        <Text style={styles.text}>Action</Text>
+            <View>
+                <Text style={styles.title}>Favorites</Text>
+            </View>
+            <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={initSetup} />}>
+                <View style={styles.header}>
+                    <View style={{ ...styles.row, marginHorizontal: 20 }}>
+                        <Text style={{ color: "white", fontSize: 14 }}>Train</Text>
+                        <Text style={{ color: "white", marginLeft: "auto" }}>Time</Text>
                     </View>
                 </View>
-                {userData.map((row, index) => {
-                    const data = row.artefact.replaceAll("'", "");
-                    const jsonData = JSON.parse(data);
-
+                {delays.map((delay: DelayedStation, index: React.Key | null | undefined) => {
+                    const oldTime = new Date(delay.AdvertisedTimeAtLocation);
+                    const newTime = new Date(delay.EstimatedTimeAtLocation);
                     return (
-                        <View style={styles.row} key={index}>
-                            <Text style={styles.text}>{jsonData.station}</Text>
-                            <Text style={styles.text}>{jsonData.name}</Text>
-                            <Pressable
-                                style={({ pressed }) => ({
-                                    opacity: pressed ? 0.5 : 1,
-                                })}
-                                onPress={() => handleDelete(row.id)}
-                            >
-                                <Text style={styles.delete}>X</Text>
-                            </Pressable>
-                        </View>
+                        <Pressable
+                            key={index}
+                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            onPress={() => showDetails(delay)}
+                        >
+                            <View style={styles.wrapper}>
+                                <View style={styles.row}>
+                                    <View style={{ flex: 9.5 }}>
+                                        <View style={{ ...styles.row, marginBottom: 6 }}>
+                                            <View style={styles.pullLeft}>
+                                                <View style={{ ...styles.pill, backgroundColor: "#0F324C" }}>
+                                                    <Text style={{ fontSize: 14, color: "white" }}>
+                                                        {delay.AdvertisedTrainIdent}
+                                                    </Text>
+                                                </View>
+                                                <Text style={{ fontSize: 17, marginStart: 10, color: "white" }}>
+                                                    {delay.fromStation.AdvertisedLocationName}
+                                                </Text>
+                                            </View>
+                                            <View style={styles.pullRight}>
+                                                <Text
+                                                    style={{
+                                                        fontSize: 17,
+                                                        color: "#c95555",
+                                                        textDecorationLine: "line-through",
+                                                        textDecorationColor: "gray",
+                                                    }}
+                                                >
+                                                    {oldTime.toLocaleTimeString("sv-SE", {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                    })}
+                                                </Text>
+                                                {delay.Canceled ? (
+                                                    <Text
+                                                        style={{
+                                                            marginLeft: 5,
+                                                            fontSize: 17,
+                                                            color: "#ff5252",
+                                                            fontWeight: "bold",
+                                                        }}
+                                                    >
+                                                        Cancelled
+                                                    </Text>
+                                                ) : (
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 17,
+                                                            color: "#A3F836",
+                                                            fontWeight: "bold",
+                                                            marginLeft: 5,
+                                                        }}
+                                                    >
+                                                        {newTime.toLocaleTimeString("sv-SE", {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        })}
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        </View>
+                                        <View style={styles.row}>
+                                            <View style={styles.pullLeft}>
+                                                <Ionicons name="train" size={15} color="white" />
+                                                <Text style={{ color: "white", textAlign: "center" }}>SJ Regional</Text>
+                                            </View>
+                                            <View style={styles.pullRight}>
+                                                <View style={styles.pill}>
+                                                    <Text style={{ color: "white", textAlign: "center" }}>
+                                                        Track {Math.floor(Math.random() * 100) + 1}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <View style={{ flex: 1 / 2 }}>
+                                        <View style={{ flex: 1, justifyContent: "center" }}>
+                                            <Ionicons name="chevron-forward" size={24} color="white" />
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
+                        </Pressable>
                     );
                 })}
             </ScrollView>
@@ -73,26 +162,60 @@ export default function Favorites() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 0,
     },
     title: {
         fontSize: 48,
         fontWeight: "bold",
         color: "white",
-    },
-    row: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        margin: 10,
+        padding: 10,
     },
     text: {
-        fontSize: 25,
+        fontSize: 20,
+        color: "white",
+    },
+    label: {
+        fontSize: 20,
         fontWeight: "bold",
         color: "white",
     },
-    delete: {
-        fontSize: 30,
-        fontWeight: "bold",
-        color: "red",
+    separator: {
+        marginVertical: 30,
+        height: 1,
+        width: "80%",
+    },
+    wrapper: {
+        flex: 1,
+        marginHorizontal: 10,
+        padding: 15,
+        borderBottomColor: "#666",
+        borderBottomWidth: 1,
+    },
+    column: {
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "center",
+    },
+    row: {
+        flex: 1,
+        flexDirection: "row",
+    },
+    header: {
+        flexDirection: "row",
+    },
+    pullLeft: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "flex-start",
+    },
+    pullRight: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "flex-end",
+    },
+    pill: {
+        backgroundColor: "#1F6398",
+        borderRadius: 5,
+        padding: 3,
     },
 });

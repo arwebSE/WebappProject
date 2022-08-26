@@ -19,7 +19,7 @@ export default function DelayDetails({ route }: { route: RouteProp<{ params: { d
         if (messages[0] === "empty") {
             console.log("No messages found.");
             return;
-        } else if (messages.length > 1) {
+        } else if (messages.length > 0) {
             console.log("Messages fetched!");
             return;
         } else {
@@ -29,7 +29,16 @@ export default function DelayDetails({ route }: { route: RouteProp<{ params: { d
         }
     };
 
-    const saveStation = () => {
+    const isFavorited = async () => {
+        const userData = await authModel.getData();
+        const data = userData.filter((row: { artefact: string }) => {
+            const jsonData = JSON.parse(row.artefact.replaceAll("'", ""));
+            return jsonData.station === delay.fromStation.LocationSignature;
+        }).length;
+        return data > 0;
+    };
+
+    const saveStation = async () => {
         const saveData = {
             station: delay.fromStation.LocationSignature,
             name: delay.fromStation.AdvertisedLocationName,
@@ -37,24 +46,52 @@ export default function DelayDetails({ route }: { route: RouteProp<{ params: { d
         };
         const jsonData = JSON.stringify(saveData);
         console.log("Saving station:", saveData);
-        authModel.saveData(jsonData);
+        await authModel.saveData(jsonData);
+        refresh();
     };
 
-    useEffect(() => {
-        fetchMessages();
+    const removeStation = async () => {
+        const userData = await authModel.getData();
+        const data = userData.filter((row: { artefact: string }) => {
+            const jsonData = JSON.parse(row.artefact.replaceAll("'", ""));
+            return jsonData.station === delay.fromStation.LocationSignature;
+        });
+        console.log("Trying to remove matching station", data);
+        await authModel.deleteData(data[0].id);
+        refresh();
+    };
+
+    const updateOptions = async () => {
+        const favorited = await isFavorited();
+
         navigation.setOptions({
             title: "Details",
             headerRight: () => (
                 <Pressable
                     onPress={() => {
-                        saveStation();
+                        {
+                            favorited ? removeStation() : saveStation();
+                        }
                     }}
                     style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
                 >
-                    <Ionicons name="heart-outline" size={30} color={Colors.text} style={{ marginRight: 15 }} />
+                    {favorited ? (
+                        <Ionicons name="heart" size={30} color={Colors.text} style={{ marginRight: 15 }} />
+                    ) : (
+                        <Ionicons name="heart-outline" size={30} color={Colors.text} style={{ marginRight: 15 }} />
+                    )}
                 </Pressable>
             ),
         });
+    };
+
+    const refresh = async () => {
+        await fetchMessages();
+        await updateOptions();
+    }
+
+    useEffect(() => {
+        refresh();
     });
 
     return (

@@ -43,9 +43,8 @@ const getDelays = async () => {
 
 // get message if match from and to station
 const findMessages = async (fromStation: string) => {
-    const messages = await trafficModel.getMessages();
-
     console.log("Checking messages for", fromStation);
+    const messages = await trafficModel.getMessages();
 
     const msgArray = [];
     messages.map((message: any) => {
