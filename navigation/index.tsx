@@ -35,7 +35,7 @@ function RootNavigator() {
             <Stack.Group screenOptions={{ presentation: "modal" }}>
                 <Stack.Screen name="Modal" component={SettingsModal} options={{ title: "User Settings" }} />
             </Stack.Group>
-            <Stack.Screen name="DelayDetails" component={DelayDetails} options={{ title: "Details" }}/>
+            <Stack.Screen name="DelayDetails" component={DelayDetails} options={{ title: "Details" }} />
         </Stack.Navigator>
     );
 }

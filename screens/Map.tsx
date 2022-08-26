@@ -5,7 +5,7 @@ import * as Location from "expo-location";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 
-import { DelayedStation, Station } from "../types";
+import { DelayedStation } from "../types";
 import { getDelays } from "../utils/delays";
 
 export default function Map() {
