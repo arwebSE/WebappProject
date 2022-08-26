@@ -1,4 +1,6 @@
-# The final project for the course [WebApp](https://dbwebb.se/kurser/webapp-v4)
+# Webapp Kmom10
+
+This is the final project for the course [WebApp](https://dbwebb.se/kurser/webapp-v4).
 
 The goal for this project was to create an app (client) that would fetch different kind of information regarding trains that had been delayed.
 
