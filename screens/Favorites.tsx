@@ -13,7 +13,7 @@ export default function Favorites() {
     const [loading, setLoading] = useState<boolean>(false);
     const [delays, setDelays] = useState<DelayedStation | []>([]);
 
-    const initSetup = async () => {
+    const refresh = async () => {
         setLoading(true);
 
         const userData = await authModel.getData();
@@ -31,10 +31,6 @@ export default function Favorites() {
             });
         });
 
-        console.log(
-            "filteredDelays:",
-            filteredDelays.map((delay) => delay.ActivityId)
-        );
         setDelays(filteredDelays);
 
         setLoading(false);
@@ -42,7 +38,7 @@ export default function Favorites() {
 
     const isFocused = useIsFocused();
     useEffect(() => {
-        isFocused && initSetup();
+        isFocused && refresh();
     }, [isFocused]);
 
     const showDetails = (delay: DelayedStation) => {
@@ -58,7 +54,7 @@ export default function Favorites() {
             <View>
                 <Text style={styles.title}>Favorites</Text>
             </View>
-            <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={initSetup} />}>
+            <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}>
                 <View style={styles.header}>
                     <View style={{ ...styles.row, marginHorizontal: 20 }}>
                         <Text style={{ color: "white", fontSize: 14 }}>Train</Text>

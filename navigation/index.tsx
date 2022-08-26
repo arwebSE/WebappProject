@@ -33,9 +33,9 @@ function RootNavigator() {
             <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
             <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: "Oops!" }} />
             <Stack.Group screenOptions={{ presentation: "modal" }}>
-                <Stack.Screen name="Modal" component={SettingsModal}  options={{ title: "User Settings" }} />
+                <Stack.Screen name="Modal" component={SettingsModal} options={{ title: "User Settings" }} />
             </Stack.Group>
-            <Stack.Screen name="DelayDetails" component={DelayDetails} />
+            <Stack.Screen name="DelayDetails" component={DelayDetails} options={{ title: "Details" }}/>
         </Stack.Navigator>
     );
 }

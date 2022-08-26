@@ -65,7 +65,6 @@ export default function DelayDetails({ route }: { route: RouteProp<{ params: { d
         const favorited = await isFavorited();
 
         navigation.setOptions({
-            title: "Details",
             headerRight: () => (
                 <Pressable
                     onPress={() => {
