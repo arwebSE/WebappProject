@@ -102,6 +102,7 @@ const auth = {
         return result.data;
     },
     saveData: async function saveData(artefact: string) {
+        const storedToken = await storage.readToken();
         const data = {
             api_key: config.apiKey,
             artefact,
@@ -111,6 +112,7 @@ const auth = {
             body: JSON.stringify(data),
             headers: {
                 "content-type": "application/json",
+                "x-access-token": storedToken.token,
             },
         });
         const result = await response.json();
@@ -128,6 +130,7 @@ const auth = {
         };
     },
     deleteData: async function deleteData(id: number) {
+        const storedToken = await storage.readToken();
         const data = {
             api_key: config.apiKey,
             id,
@@ -137,6 +140,7 @@ const auth = {
             body: JSON.stringify(data),
             headers: {
                 "content-type": "application/json",
+                "x-access-token": storedToken.token,
             },
         });
         if (response) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { showMessage } from "react-native-flash-message";
 
@@ -15,11 +15,24 @@ export default function Favorites() {
         const data = await authModel.getData();
         setUserData(data);
         setLoading(false);
+        //console.log("got data", data);
     };
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    const handleDelete = async (index: number) => {
+        console.log("Deleting ", index);
+        const result = await authModel.deleteData(index);
+        showMessage({
+            message: result.title,
+            description: result.message,
+            type: result.type,
+        });
+
+        fetchData();
+    };
 
     //return a row for each item in the array
     return (
@@ -27,6 +40,11 @@ export default function Favorites() {
             <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchData} />}>
                 <View>
                     <Text style={styles.title}>Favorites</Text>
+                    <View style={styles.row}>
+                        <Text style={styles.text}>ID</Text>
+                        <Text style={styles.text}>Name</Text>
+                        <Text style={styles.text}>Action</Text>
+                    </View>
                 </View>
                 {userData.map((row, index) => {
                     const data = row.artefact.replaceAll("'", "");
@@ -34,9 +52,16 @@ export default function Favorites() {
 
                     return (
                         <View style={styles.row} key={index}>
-                            <Text style={styles.text}>{jsonData.place}</Text>
-                            <Text style={styles.text}>{jsonData.latitude}</Text>
-                            <Text style={styles.text}>{jsonData.longitude}</Text>
+                            <Text style={styles.text}>{jsonData.station}</Text>
+                            <Text style={styles.text}>{jsonData.name}</Text>
+                            <Pressable
+                                style={({ pressed }) => ({
+                                    opacity: pressed ? 0.5 : 1,
+                                })}
+                                onPress={() => handleDelete(row.id)}
+                            >
+                                <Text style={styles.delete}>X</Text>
+                            </Pressable>
                         </View>
                     );
                 })}
@@ -58,12 +83,16 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
-        backgroundColor: "red",
-        margin: 5,
+        margin: 10,
     },
     text: {
-        fontSize: 20,
+        fontSize: 25,
         fontWeight: "bold",
         color: "white",
+    },
+    delete: {
+        fontSize: 30,
+        fontWeight: "bold",
+        color: "red",
     },
 });

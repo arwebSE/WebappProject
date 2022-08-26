@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView, SafeAreaView } from "react-native";
-import { RouteProp } from "@react-navigation/native";
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, Pressable } from "react-native";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { DelayedStation } from "../types";
-
 import { findMessages } from "../utils/delays";
+import Colors from "../constants/Colors";
+import authModel from "../models/auth";
 
-export default function DelayDetails({ route }: { route: RouteProp<{ delay: DelayedStation }> }) {
-    const delay = route.params.delay;
+export default function DelayDetails({ route }: { route: RouteProp<{ params: { delay: DelayedStation } }> }) {
+    const navigation = useNavigation();
+    const delay: DelayedStation = route.params.delay;
     const oldTime = new Date(delay.AdvertisedTimeAtLocation);
     const newTime = new Date(delay.EstimatedTimeAtLocation);
     const [messages, setMessages] = useState<string[]>([]);
@@ -27,8 +29,32 @@ export default function DelayDetails({ route }: { route: RouteProp<{ delay: Dela
         }
     };
 
+    const saveStation = () => {
+        const saveData = {
+            station: delay.fromStation.LocationSignature,
+            name: delay.fromStation.AdvertisedLocationName,
+            geo: delay.fromStation.Geometry,
+        };
+        const jsonData = JSON.stringify(saveData);
+        console.log("Saving station:", saveData);
+        authModel.saveData(jsonData);
+    };
+
     useEffect(() => {
         fetchMessages();
+        navigation.setOptions({
+            title: "Details",
+            headerRight: () => (
+                <Pressable
+                    onPress={() => {
+                        saveStation();
+                    }}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                >
+                    <Ionicons name="heart-outline" size={30} color={Colors.text} style={{ marginRight: 15 }} />
+                </Pressable>
+            ),
+        });
     });
 
     return (
