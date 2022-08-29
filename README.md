@@ -13,5 +13,4 @@ Run the app with this link: https://expo.dev/@agge333/proj?serviceType=classic&d
 # Developing
 
 Supported scripts are:
-* `yarn start` to start developing and hotreload on changes..
-* `yarn test` to run tests (no tests yet!)
+* `yarn start` to start developing and hotreload on changes.
